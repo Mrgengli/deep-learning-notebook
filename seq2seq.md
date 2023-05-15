@@ -27,8 +27,26 @@ batchSize表示批次大小，如bathSize=5，代表模型处理完5个样本后
 
 ## 二、seq2seq  
 
-1.编码器 Decoder  
+### 1.编码器 Decoder  
 ![image](https://img-blog.csdnimg.cn/20210420112127253.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FuZ3VzX2h1YW5nX3h1,size_16,color_FFFFFF,t_70)  
 Encoder部分一般使用了普通RNN的结构。其将一个序列表征为一个定长的上下文向量c，计算方式有多种，如下：  
+
+![image](https://github.com/Mrgengli/deep-learning-notebook/blob/main/image_dataset/Decoder.png?raw=true)
+
+### 2.解码器 Decoder  
+相对于编码器而言，解码器的结构更多，下面介绍三种：  
+#### 第一种：  
+![image](https://img-blog.csdnimg.cn/20210420112556244.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FuZ3VzX2h1YW5nX3h1,size_16,color_FFFFFF,t_70)    
+这种结构直接将Decoder得到的上下文向量作为RNN的初始隐藏状态输入到RNN结构中，后续单元不接受 c 的输入，计算公式如下：
+
+
+
+
+
+
+
+
+
+
 
 
