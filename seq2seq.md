@@ -25,3 +25,10 @@ batchSize表示批次大小，如bathSize=5，代表模型处理完5个样本后
 一个RNN包括隐藏状态**h**,一个可选的输出**y**，可变长度输入序列x， X = {x1, x2, … xT}。  
 ![image](https://img-blog.csdnimg.cn/dcb303c6c2b04d1daaa73b2516ff261b.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5Yqq5Yqb5LiN6ISx5Y-R6YCJ5omL,size_17,color_FFFFFF,t_70,g_se,x_16)
 
+## 二、seq2seq  
+
+1.编码器 Decoder  
+![image](https://img-blog.csdnimg.cn/20210420112127253.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FuZ3VzX2h1YW5nX3h1,size_16,color_FFFFFF,t_70)  
+Encoder部分一般使用了普通RNN的结构。其将一个序列表征为一个定长的上下文向量c，计算方式有多种，如下：  
+
+
