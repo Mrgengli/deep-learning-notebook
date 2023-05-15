@@ -1,3 +1,5 @@
+参考自：https://blog.csdn.net/qq_37492509/article/details/114991482?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522168410903616800192256272%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=168410903616800192256272&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-2-114991482-null-null.142^v87^control_2,239^v2^insert_chatgpt&utm_term=%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6&spm=1018.2226.3001.4187
+
 ### 注意力机制
 * 软性注意力机制：在选择信息的时候，计算N个输入的加权平均，再输入到神经网络中计算
 * 硬性注意力机制：选择输入序列某一个位置上的信息，比如随机选择一个信息或者选择概率最高的信息
