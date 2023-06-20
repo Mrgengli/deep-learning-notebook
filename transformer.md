@@ -1,5 +1,5 @@
 参考博客：
-https://zhuanlan.zhihu.com/p/338817680
+https://zhuanlan.zhihu.com/p/338817680    **这篇博客里面详细解释了decoder中的mask掩码是怎么进行掩码操作的**
 
 * 上面的博客讲的很清楚
 
