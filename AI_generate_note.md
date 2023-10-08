@@ -243,9 +243,35 @@ out_result = {
 ```
 ### 1.获取输出文案
 通过遍历 in_note_content 列表中的每个元素，提取其中的 "content" 和 "sub_title" 字段的值。如果子标题的长度大于0，则将其添加到 sub_title_list 列表中，并将子标题添加到 out_note_content 列表中。如果内容的长度大于0，则将其添加到 out_note_content 列表中。最后，通过使用换行符将 out_note_content 列表中的内容连接为一个字符串，并将该字符串赋值给 out_note_contents 变量。最后，将 note_title 和 out_note_contents 组成一个字典 note_text_info，并将 note_text_info 和 sub_title_list 作为返回值返回。
-### 2.通过sub_source字段
+### 2.通过sub_source字段是否是"hot_event"
+对备选图进行一个粗筛，看看url是否有内容或者格式上的错误
+```
+判断 clear_img_urls[url] 是否包含 "new_url" 字段。如果不包含，则进入下一次循环。
 
+如果包含 "new_url" 字段，首先获取 new_url 的值。然后，尝试进行以下判断：
 
+如果 new_url 为 None，则记录相应的日志并跳过该URL。
+如果 new_url 不包含 "http"，则记录相应的日志并跳过该URL。
+如果 new_url 在 new_frame_list 中已经存在，则进入下一次循环。
+否则，将 new_url 添加到 new_frame_list 中。
+在整个循环结束后，将 new_frame_list 作为方法的返回值返回。
+```
+* 不是"hot_event"的话，使用image_filter函数:
+在上面的基础上考虑了将frame_list（这个是input_result里面的，）使用了上面的方法。将img_urls（这个是input_fea里面的）和cover_images加到了输出里面。
+
+### 3.图片编排 这里只考虑了结构化大图和上图下文，没有字幕拼接 
+* 上图下文（有四种来源：热点配图，视频配图，图文配图和纯文本素材配图）
+  * 热点配图 other_image_matching：图片尺寸过滤height / width < 0.5 or height / width > 3，多模去重（image_embdding_diff）：对给定的备选图进行去重调用另外一个名为 get_embdding 的方法，获取每个备选图URL的多模向量，去掉那些模态相似度超过百分之85的，如果去重之后的数量还是大于max_mum,随机选一些和max_mum数量一样的图
+  * 视频配图 video_image_matching 这里的max_mum是怎么回事？这里也是多模去重，然后进行图片拼接。（首先，创建一个空列表 contact_image_list，用于保存拼接后的图片URL。然后，定义一个变量 index 并初始化为 0，以及一个空列表 c_list，用于临时保存待拼接的图片URL。接下来，使用 for 循环遍历 new_image_list 中的每个元素（即配图URL）。首先判断 c_list 的长度是否小于 v_num，如果小于，则将当前元素添加到 c_list 中。否则，说明 c_list 已经达到或超过了建议竖向拼接的图片数量，需要进行拼接操作。根据给定的任务ID和索引 index 构造输出路径 out_path，然后调用 self.read_img 方法读取 c_list 中的图片，并将结果保存在 c_list 中。接着，使用 ic.run_concat 方法对 c_list 进行竖向拼接操作，并将拼接后的图片上传到 BOS，并将返回的拼接图URL添加到 contact_image_list 中。如果拼接过程中出现异常，则记录日志并继续处理下一组图片。最后，增加 index 的值，重新赋值给 c_list，并将当前元素添加到 c_list 中。在整个 for 循环结束后，如果 c_list 的长度大于 1，说明还有剩余未拼接的图片，需要进行最后的拼接操作。同样地，根据给定的任务ID和索引 index 构造输出路径 out_path，然后调用 self.read_img 方法读取 c_list 中的图片，并将结果保存在 c_list 中。接着，使用 ic.run_concat 方法对 c_list 进行竖向拼接操作，并将拼接后的图片上传到 BOS，并将返回的拼接图URL添加到 contact_image_list 中。如果拼接过程中出现异常，则记录日志。最后，如果 c_list 的长度等于 1，说明只有一张图片没有进行拼接操作，直接将该图片的URL添加到 contact_image_list 中。最终，将 contact_image_list 作为方法的返回值返回。）
+  * 图文配图 other_image_matching
+  * 纯文本、素材检索配图 无内容
+* 大图输出 背景图渲染 background_director。  
+  * 1.获取背景图和模版图
+  * 主要实现了从服务器获取对应颜色标签（这个颜色标签来自backgroud_img_urls）的模板信息，并将其解析成一个字典返回。
+  * 首先，构造一个字典 data，将颜色标签放入其中。然后，使用 requests.post 方法向指定的URL发送POST请求，获取返回的JSON格式数据并解析出其中的模板列表 res。如果 res 中有多个模板，则随机选择一个；如果只有一个模板，则直接选取；如果没有模板，则返回空字典 {}。接着，对于每个模板，分别解析出其模板ID、标签、插槽信息和图层信息等，并将其保存在一个字典 model_out 中。其中，对于背景图插槽信息，会将其命名为 backgound。
+  * 在backgroud_img_urls中获取back_img_url？
+  * 2.字幕切分和渲染参数组装
+  * 
 
 
 
