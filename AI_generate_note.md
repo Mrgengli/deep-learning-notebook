@@ -169,6 +169,81 @@ out_result = {
 }
 ```
 
+## 三、图像生成模块
+* 输入参数
+```
+in_fea = {
+            "input_fea": {
+                "taskid": "hxy_55373737",
+                "img_urls": [],
+                "cover_images": [],
+                "video_img_urls": []
+                },
+            "input_result": {
+                'query_info': [{'query': {'category': '母婴育儿', 'subject': '', 'color': ''}, 'type': '1'}]
+            }}
+```
+
+这段代码实现了一个图像处理的函数 image_process_impl。该函数接收一个字典类型的参数 input_data，其中包含了需要处理的图像相关信息。函数首先解析输入参数中的图片信息和任务ID，并根据任务ID创建存储路径。然后将待清洗的图片 URL 添加到 wait_clean_image_urls 列表中，并通过多线程分别调用 clean_image_process 和 query_note_process 函数进行清洗和检索处理。待清洗的图片包括 video_img_urls、img_urls 和 cover_images 中的图片 URL。
+
+在执行清洗和检索处理时，使用了 ThreadPoolExecutor 类来实现多线程，分别设置最大工作线程为 2。如果存在待清洗的图片，则调用 **clean_image_process** 函数对**图片进行清洗**，返回清洗后的图片 URL 信息，存储在 clear_img_urls 字典中。如果存在查询（query_info）信息，则调用 **query_note_process** 函数对查询信息进行处理，返回背景图片 URL，存储在 backgroud_img_urls 列表中。  ???
+
+最终返回一个字典类型的变量 image_process_result，其中包含了清洗后的图片 URL 信息、查询结果背景图片 URL 信息等。
+* clean_image_process：
+* 用于对给定的图片 URL 进行清洗处理。函数接收四个参数：img_url 为待清洗的图片 URL，task_id 为任务ID，save_path 为存储路径，img_idx 为图片索引。  
+首先通过 _get_image_url_base64 函数将图片 URL 转换为 base64 格式，并使用 ThreadPoolExecutor 类实现多线程。在此代码中，使用该类同时执行两个函数：logo_img_impaint 和 smooth_img。其中 logo_img_impaint 函数用于**清除图片中的水印**，smooth_img 函数用于判断并提高图像清晰度。  
+接着获取 logo_img_impaint 和 smooth_img 函数的返回结果。通过 logo_img_impaint.get("result", "") 获取清除水印后的图像信息，通过 smooth_img_impaint.get("result", {}).get("prob", []) 获取清晰度估计值。如果清晰度得分足够高，同时也经过了水印去除操作，则将经过处理后的图片保存到本地，并返回其对应的 URL。如果清晰度得分不够高或者处理失败，返回 None。  
+最后输出日志信息并返回保存在 variable clean_image_url 中的 URL。
+* _query_note_process：
+* 首先从 query_detail_info 中获取查询类型 query_type。如果 query_type 为 "1"，表示需要进行查询操作。然后从 query_detail_info 中获取查询条件，包括类别 category、颜色 color 和主题 subject。接下来定义了一个变量 size，表示查询结果数量，目前设置为10。  
+根据查询类型和查询条件，调用 megservice.queryNote 函数发起查询请求，并将查询结果保存在 note_result_lst 变量中。如果查询类型为 "0" 或其他值，则将 note_result_lst 置为空字典。  
+最后输出日志信息，并返回查询结果 note_result_lst。
+* 输出参数：
+```
+{
+    "other_img_urls": [],
+    "backgroud_img_urls": [
+        {}
+    ],
+    "clear_img_urls": {
+        "http://t7.baidu.com/it/u=2531715506,2113048258&fm=3035&app=3035&f=JPEG?w=464&h=194&s=26BCE5233AC8B80D6A7D04DB030050B2": {
+            "new_url": "http://bjh-pixel.bj.bcebos.com/3806547008298063354exp_09271695798994.241914_0_ainote_new.jpg",
+            "logo_removed": 0
+        },
+        "http://t9.baidu.com/it/u=2531715506,2113048258&fm=3035&app=3035&f=JPEG?w=464&h=194&s=26BCE5233AC8B80D6A7D04DB030050B2": {
+            "new_url": "http://bjh-pixel.bj.bcebos.com/3806547008298063354exp_09271695798994.241914_1_ainote_new.jpg",
+            "logo_removed": 0
+        },
+        "http://t7.baidu.com/it/u=2491411430,1768003352&fm=3035&app=3035&f=JPEG?w=640&h=399&s=29455A6EE4BA907C52CC6C980300C092": {
+            "new_url": "http://bjh-pixel.bj.bcebos.com/3806547008298063354exp_09271695798994.241914_2_ainote_new.jpg",
+            "logo_removed": 1
+        },
+        "http://t8.baidu.com/it/u=3051736189,1421080769&fm=3035&app=3035&f=JPEG?w=491&h=460&s=417016C69E632E17E0308A2D0300F043": {
+            "new_url": null,
+            "logo_removed": 0
+        },
+        "http://t7.baidu.com/it/u=2932151782,3229170893&fm=70&app=139&f=JPEG?w=690&h=872&s=9E82742313EED0EF1E5585DF0000D0B2": {
+            "new_url": "http://bjh-pixel.bj.bcebos.com/3806547008298063354exp_09271695798994.241914_4_ainote_new.jpg",
+            "logo_removed": 1
+        }
+    }
+}
+```
+## 四、笔记编排
+输入的参数包括 input_fea,input_result,text_result,image_result
+输出的参数为：
+```
+out_result = {
+            "taskid": taskid,
+            "note_type": note_type, 
+            "note_text_info": note_text_info,
+            "note_image_info": note_image_info,
+            "render_info": render_info
+            }
+```
+### 1.获取输出文案
+通过遍历 in_note_content 列表中的每个元素，提取其中的 "content" 和 "sub_title" 字段的值。如果子标题的长度大于0，则将其添加到 sub_title_list 列表中，并将子标题添加到 out_note_content 列表中。如果内容的长度大于0，则将其添加到 out_note_content 列表中。最后，通过使用换行符将 out_note_content 列表中的内容连接为一个字符串，并将该字符串赋值给 out_note_contents 变量。最后，将 note_title 和 out_note_contents 组成一个字典 note_text_info，并将 note_text_info 和 sub_title_list 作为返回值返回。
+### 2.通过sub_source字段
 
 
 
