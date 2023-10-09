@@ -139,11 +139,11 @@ out_result = {
 }
 ```
 ### 2.视频文本获取
-* 在传入类型为视频的时候，将连起来的OCR文本传给m_content，如果没有ocr就传入标题
+* 在传入类型为视频的时候，将连起来的OCR文本传给m_content，如果没有ocr就传入标题，这里只有是视频的时候，才用ocr，不是视频的时候传入的m_content直接用。
 * 将视频文案（m_content）进行润色压缩，这里的输入要大于15个字符，这里调用一言大模型对文案进行润色，去除重复，错别字，翻译英文为中文。
-* 对文案的类型进行判断，根据所属的一级垂类，以及文案的长短进行判断“0” 是结构化“1”是人格化 “2”是其他，无文案，短文案“3”是字幕拼接
+* 对文案的类型进行判断，根据所属的一级垂类，以及文案的长短进行判断“0” 是结构化“1”是人格化 “2”是其他，无文案，短文案“3”是字幕拼接，这里没有字幕拼接
 * 对应的结构化和人格化会有不一样的prompt，调用大模型对文案判断是否适合用来进行文案生成，并且生成详细的xml格式的笔记文案
-* 解析xml文件，解析出note_content和note_title。后处理对重复的内容进行过滤
+* 解析xml文件，解析出note_content和note_title。后处理对重复的内容进行过滤，还加了一个字数校验。
 
 输出实例：
 ```
@@ -184,7 +184,7 @@ in_fea = {
             }}
 ```
 
-这段代码实现了一个图像处理的函数 image_process_impl。该函数接收一个字典类型的参数 input_data，其中包含了需要处理的图像相关信息。函数首先解析输入参数中的图片信息和任务ID，并根据任务ID创建存储路径。然后将待清洗的图片 URL 添加到 wait_clean_image_urls 列表中，并通过多线程分别调用 clean_image_process 和 query_note_process 函数进行清洗和检索处理。待清洗的图片包括 video_img_urls、img_urls 和 cover_images 中的图片 URL。
+这段代码实现了一个图像处理的函数 image_process_impl。该函数接收一个字典类型的参数 input_data，其中包含了需要处理的图像相关信息。函数首先解析输入参数中的图片信息和任务ID，并根据任务ID创建存储路径。然后将待清洗的图片 URL 添加到 wait_clean_image_urls 列表中，并通过多线程分别调用 clean_image_process 和 query_note_process 函数进行清洗和检索处理。待清洗的图片包括 video_img_urls、img_urls 和 **cover_images**zh这个是从哪里来的 中的图片 URL。
 
 在执行清洗和检索处理时，使用了 ThreadPoolExecutor 类来实现多线程，分别设置最大工作线程为 2。如果存在待清洗的图片，则调用 **clean_image_process** 函数对**图片进行清洗**，返回清洗后的图片 URL 信息，存储在 clear_img_urls 字典中。如果存在查询（query_info）信息，则调用 **query_note_process** 函数对查询信息进行处理，返回背景图片 URL，存储在 backgroud_img_urls 列表中。  ???
 
@@ -271,7 +271,10 @@ out_result = {
   * 首先，构造一个字典 data，将颜色标签放入其中。然后，使用 requests.post 方法向指定的URL发送POST请求，获取返回的JSON格式数据并解析出其中的模板列表 res。如果 res 中有多个模板，则随机选择一个；如果只有一个模板，则直接选取；如果没有模板，则返回空字典 {}。接着，对于每个模板，分别解析出其模板ID、标签、插槽信息和图层信息等，并将其保存在一个字典 model_out 中。其中，对于背景图插槽信息，会将其命名为 backgound。
   * 在backgroud_img_urls中获取back_img_url？
   * 2.字幕切分和渲染参数组装
-  * 
+  * 根据模版信息对文本和背景进行一些渲染处理，分为三步，分别是对标题，大纲和正文
+  * 标题和大纲只进行了文本和背景的高亮处理
+  * 正文部分加入了一些高亮处理模块，子标题正文换行和换页处理
+  * 最后返回render_info和note_image_info和note_text_info
 
 
 
