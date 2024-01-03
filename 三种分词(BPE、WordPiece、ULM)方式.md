@@ -1,4 +1,4 @@
-# NLP Subword三大原理：BPE、wordpiece、ulm
+# NLP Subword三大原理：[BPE、wordpiece、ulm](https://zhuanlan.zhihu.com/p/191648421)
 
 subword与传统分词方法的比较：
 * 传统词表示方法无法很好的处理未知或罕见的词汇（OOV 问题）。
@@ -8,6 +8,7 @@ subword与传统分词方法的比较：
 * 目前有三种主流的 Subword 算法，它们分别是：Byte Pair Encoding (BPE)、WordPiece 和 Unigram Language Model。
 
 ## 1.[BPE分词原理](https://zhuanlan.zhihu.com/p/448147465)
+相关源代码可以参考：[subword-nmt](https://github.com/rsennrich/subword-nmt/tree/master/subword_nmt)
 
 BPE的代码实现：
 ```python
@@ -48,5 +49,10 @@ def get_tokens(vocab):
             tokens[token] += freq
     return tokens
 ```
+
+## 2.worldpiece
+Google的Bert模型在分词的时候使用的是WordPiece算法。与BPE算法类似，WordPiece算法也是每次从词表中选出两个子词合并成新的子词。与BPE的最大区别在于，如何选择两个子词进行合并：BPE选择频数最高的相邻子词合并，而WordPiece选择能够提升语言模型概率最大的相邻子词加入词表。
+
+
 
 
